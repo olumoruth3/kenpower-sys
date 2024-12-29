@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <!-- ===== Iconscout CSS ===== -->
+  <link rel="stylesheet" href="https://unicons.iconscout.com/release/v4.0.0/css/line.css" />
+  <!-- ===== CSS ===== -->
+  <link rel="stylesheet" href="/css/custom.css" />
+  <title>Registration Form</title>
+</head>
+
+<body>
+  <main class="container">
+    <div class="forms">
+      <!-- Registration Section-->
+      <div class="form signup">
+        <form action="/signup" method="POST">
+          <% console.log("Messages in View:", messages.error); %>
+          <div class="alert-container">
+            <% if (messages.error && messages.error.length > 0) { %>
+              <% messages.error.forEach(function(err) { %>
+                <div class="alert alert-danger">
+                  <strong><%= err %></strong>
+                </div>
+              <% }); %>
+            <% } %>
+          </div>
+          <span class="title">Registration</span>
+          <div class="input-field">
+              <input type="text" name="name" placeholder="Enter your name" required />
+              <i class="uil uil-user"></i>
+          </div>
+      
+          <div class="input-field">
+              <input type="text" name="email" placeholder="Enter your email" required/>
+              <i class="uil uil-envelope icon"></i>
+          </div>
+      
+          <div class="input-field">
+              <input type="password" class="password" name="password" placeholder="Create a password" required/>
+              <i class="uil uil-lock icon"></i>
+              <i class="uil uil-eye-slash showHidePw"></i>
+          </div>
+      
+          <div class="input-field">
+              <input type="password" class="password" name="confirmPassword" placeholder="Confirm a password" required />
+              <i class="uil uil-lock icon"></i>
+              <i class="uil uil-eye-slash showHidePw"></i>
+          </div>
+      
+          <div class="input-field">
+              <input type="tel" name="phoneNumber"  placeholder="Enter your phone number" required/>
+              <i class="uil uil-phone icon"></i>
+          </div>
+      
+          <div class="checkbox-text">
+              <div class="checkbox-content">
+                  <input type="checkbox" id="termCon" name="terms" />
+                  <label for="termCon" class="text">I accepted all terms and conditions</label>
+              </div>
+          </div>
+      
+          <div class="input-field button">
+              <input type="submit" value="Signup" name="signup" />
+          </div>
+      </form>
+      
+
+        <div class="login-signup">
+          <span class="text">Already a member?
+            <a href="/login" class="text login-link">Login Now</a>
+          </span>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <script src="\javascript\script.js"></script>
+
+</body>
+
+</html>

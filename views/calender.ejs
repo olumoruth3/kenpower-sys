@@ -1,0 +1,287 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <!-- CSS -->
+    <link rel="stylesheet" href="/css/style.css">
+    <link rel="stylesheet" href="/css/main.css">
+    <link rel="stylesheet" href="/css/calender.css">
+
+    <!-- Boxicons CSS -->
+    <link href='https://unpkg.com/boxicons@2.1.1/css/boxicons.min.css' rel='stylesheet'>
+
+    <!-- Font Awosome  -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.2.0/css/all.min.css" />
+    <title>Calendar</title>
+</head>
+
+<body>
+
+    <aside class="sidebar close">
+        <header>
+            <div class="logo-box">
+                <span class="image">
+                    <img src="images/svg/electric_bolt_20dp.svg" alt="">
+                </span>
+
+                <div class="company header-text">
+                    <span class="name">KPLC</span>
+                    <span class="profession">Power Effeciency</span>
+                </div>
+            </div>
+
+            <i class="bx bx-chevron-right toggle"></i>
+        </header>
+
+        <nav class="menu-bar">
+            <div class="menu">
+                <ul class="menu-links">
+                    <li class="nav-link">
+                        <a href="/dashboard">
+                            <i class="bx bx-home-alt icon"></i>
+                            <span class="text nav-text">Dashboard</span>
+                        </a>
+                    </li>
+                    <li class="nav-link">
+                        <a href="/home">
+                            <i class="bx bx-user icon"></i>
+                            <span class="text nav-text">User Profiles</span>
+                            <i class='bx bx-chevron-down icon arrow'></i>
+                        </a>
+                    </li>
+
+                    <li class="nav-link">
+                        <a href="#">
+                            <i class="bx bx-bell icon"></i>
+                            <span class="text nav-text">Services</span>
+                            <i class='bx bx-chevron-down icon arrow'></i>
+                        </a>
+
+                        <ul class="sub-menu">
+                            <li><a href=""><span class="text">Connnections</span></a></li>
+                            <li><a href=""><span class="text">Service Requests</span></a></li>
+                            <li><a href=""><span class="text">Service History</span></a></li>
+                        </ul>
+                    </li>
+
+                    <li class="nav-link">
+                        <a href="#">
+                            <i class="bx bx-error-alt icon"></i>
+                            <span class="text nav-text">Faults</span>
+                            <i class='bx bx-chevron-down icon arrow'></i>
+                        </a>
+
+                        <ul class="sub-menu">
+                            <li><a href=""><span class="text">Fault Reports</span></a></li>
+                            <li><a href=""><span class="text">Fault History</span></a></li>
+                            <li><a href=""><span class="text">Service History</span></a></li>
+                        </ul>
+                    </li>
+
+                    <li class="nav-link">
+                        <a href="">
+                            <i class="bx bx-bar-chart-alt 2 icon"></i>
+                            <span class="text nav-text">Tasks</span>
+                            <i class='bx bx-chevron-down icon arrow'></i>
+                        </a>
+                        <ul class="sub-menu">
+                            <li><a href="/calender" id ="create-task-link" ><span class="text">Create Tasks</span></a></li>
+                            <li><a href="/assign_task" id ="assign-task-link"><span class="text">Assign Tasks</span></a></li>
+                            <li><a href="#" id="view-task-link"><span class="text">View Tasks</span></a></li>
+                        </ul>
+                    </li>
+
+                    <li class="nav-link">
+                        <a href="/data-analytics">
+                            <i class="bx bx-pie-chart-alt icon"></i>
+                            <span class="text nav-text">Analytics</span>
+                        </a>
+                    </li>
+                </ul>
+            </div>
+
+            <div class="bottom-content">
+                <li class="nav-link">
+                    <a href="#">
+                        <i class='bx bx-cog icon'></i>
+                        <span class="text nav-text">Settings</span>
+                    </a>
+                </li>
+            </div>
+        </nav>
+    </aside>
+
+    <header class="top-bar">
+        <!-- -----breadcrumb--- -->
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item">Customer</li>
+            <li class="breadcrumb-item active" aria-current="page">Connection Details</li>
+        </ol>
+
+        <nav class="nav">
+            <button class="theme-toggle" aria-label="Toggle theme" type="button">
+                <i id="lights" class="bx bx-moon"></i>
+            </button>
+
+            <div class="notifications">
+                <button class="notifications-trigger" aria-label="View notifications" type="button">
+                    <i class="bx bxs-bell"></i>
+                    <span class="badge">4</span>
+                </button>
+
+                <div class="alerts-panel" hidden>
+                    <header>ALERTS CENTER</header>
+                    <ul class="alerts-list">
+                        <li class="alert">
+                            <i class="bx bx-file blue"></i>
+                            <div>
+                                <time datetime="2019-12-12">December 12, 2019</time>
+                                <p>A new monthly report is ready to download!</p>
+                            </div>
+                        </li>
+                        <li class="alert">
+                            <i class="bx bx-user green"></i>
+                            <div>
+                                <time datetime="2019-12-07">December 7, 2019</time>
+                                <p>New faults uploaded in Juja!</p>
+                            </div>
+                        </li>
+                        <li class="alert">
+                            <i class="bx bx-error yellow"></i>
+                            <div>
+                                <time datetime="2019-12-02">December 2, 2019</time>
+                                <p>Power Usage Alert: Unusual high power usage in JKIA.</p>
+                            </div>
+                        </li>
+                    </ul>
+                    <button class="show-all" type="button">Show All Alerts</button>
+                </div>
+            </div>
+
+            <div class="user">
+                <button class="user-trigger" type="button">
+                    <!-- Display the avatar  -->
+                    <div class="avatar">
+                        <span><%= user.name.charAt(0).toUpperCase() %></span>
+                    </div>
+                    <!-- Display the user's name and role  -->
+                    <div class="user-info">
+                        <span><%= user.name %></span>
+                        <span><%= user.role %> for KPLC LTD</span>
+                    </div>
+                    <i class="bx bx-chevron-down"></i>
+                </button>
+
+                <ul class="user-menu" hidden>
+                    <li><a href="#profile"><i class="bx bx-user"></i>Profile</a></li>
+                    
+                    <li><a href="/login"><i class="bx bx-log-out"></i>Logout</a></li>
+                </ul>
+            </div>
+
+        </nav>
+    </header>
+
+    <main class="home">
+
+        <section class="all-users">
+            <!-- calendar  -->
+            <div class="container">
+                <div class="left">
+                    <div class="calendar">
+                        <div class="month">
+                            <i class="fas fa-angle-left prev"></i>
+                            <div class="date">december 2015</div>
+                            <i class="fas fa-angle-right next"></i>
+                        </div>
+
+                        <div class="weekdays">
+                            <div>Sun</div>
+                            <div>Mon</div>
+                            <div>Tue</div>
+                            <div>Wed</div>
+                            <div>Thu</div>
+                            <div>Fri</div>
+                            <div>Sat</div>
+                        </div>
+
+                        <div class="days"></div>
+
+                        <div class="goto-today">
+                            <div class="goto">
+                                <input type="text" placeholder="mm/yyyy" class="date-input" />
+                                <button class="goto-btn">Go</button>
+                            </div>
+                            <button class="today-btn">Today</button>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="right">
+                    <div class="today-date">
+                        <div class="event-day">Wed</div>
+                        <div class="event-date">12th December 2022</div>
+                    </div>
+                    <div class="events"></div>
+                    <div class="add-event-wrapper">
+                        <div class="add-event-header">
+                            <div class="title">Add Task</div>
+                            <i class="fas fa-times close-event" aria-label="Close"></i>
+                        </div>
+                        <div class="add-event-body">
+                            <div class="add-event-input">
+                                <label for="task-title">Title</label>
+                                <input type="text" id="task-title" placeholder="Enter Task Title" class="event-name" name="task-title" />
+                            </div>
+                            <div class="add-event-input">
+                                <label for="task-description">Description</label>
+                                <textarea  id="task-description" placeholder="Task Description" class="task-description" name="task-description" rows="5" placeholder="Enter Task Description"></textarea>
+                            </div>
+                            <div class="add-event-input">
+                                <label for="task-location">Location</label>
+                                <input type="text" id="task-location" placeholder="Location" class="task-location" name="task-location" />
+                            </div>
+                            <div class="add-event-input">
+                                <label for="task-priority">Priority</label>
+                                <select id="task-priority" class="task-priority" name="task-priority">
+                                    <option value="Low">Low</option>
+                                    <option value="Medium">Medium</option>
+                                    <option value="High">High</option>
+                                </select>
+                            </div>
+                            <div class="add-event-input">
+                                <label for="event-time-from">Event Time From</label>
+                                <input type="time" id="event-time-from" class="event-time-from" name="event-time-from" />
+                            </div>
+                            <div class="add-event-input">
+                                <label for="event-time-to">Event Time To</label>
+                                <input type="time" id="event-time-to" class="event-time-to" name="event-time-to" />
+                            </div>
+                            <div class="add-event-input">
+                                <label for="task-due-date">Due Date</label>
+                                <input type="date" id="task-due-date" class="task-due-date" name="task-due-date" />
+                            </div>
+                        </div>
+                        <div class="add-event-footer">
+                            <button class="add-event-btn">Add Task</button>
+                        </div>
+                    </div>
+                </div>
+                
+                <button class="add-event">
+                    <i class="fas fa-plus"></i>
+                </button>
+            </div>
+        </section>
+    </main>
+
+    <script src="\javascript\calender.js"></script>
+    <script src="\javascript\home.js"></script>
+
+</body>
+
+</html>
