@@ -274,6 +274,48 @@ app.post('/reset-password', async (req, res) => {
   }
 });
 
+app.post('/tasks/assign', async (req,res) => {
+  const { taskId, technicianId } = req.body;
+
+  try{
+    //Update the task status and assign technician
+    await db.query("UPDATE maintenance_tasks SET assign_status = 'assigned', assigned_technician = ? WHERE task_id = ?;", [technicianId], [taskId]);
+
+    //Update technician availability
+    await db.query("UPDATE technicians SET availability = 'unavailable' WHERE technician_id = ?;", [technicianId]);
+
+    res.status(200).send('Task assigned successfully');
+  }
+  catch (error){
+    res.status(500).send('Error assigning task');
+  }
+});
+
+app.post('/calender', async(req, res) => {
+  const { taskTitle, taskDescription, taskLocation, taskPriority, taskDueDate } = req.body;
+
+  const query = `INSERT INTO maintenance_tasks
+  (title, description, location, priority, due_date, task_status, assign_status)
+  VALUES (?, ?, ?, ?, ?, ?, ?)`;
+
+  const taskStatus = 'Pending';
+  const assignStatus = 'unassigned';
+
+  db.query(
+    query,
+    [taskTitle, taskDescription, taskLocation, taskPriority, taskDueDate, taskStatus, assignStatus],
+    (err, result) => {
+      if (err) {
+        console.error('Error inserting data:', err);
+        res.status(500).send('Error inserting data');
+      } else {
+        console.log('Task added successfully:', result);
+        res.send('Task added successfully');
+      }
+    }
+  );
+});
+
 // Routes
 app.get('/login', (req, res) => {
   res.render("login.ejs", { messages: req.flash() });
@@ -295,9 +337,60 @@ function checkAuthenticated(req, res, next) {
 }
 
 app.get('/home', checkAuthenticated, (req, res) => {
-  res.render("home.ejs");
+  const user = {
+    name: req.user.username,
+    role: req.user.role_name,
+  };
+  res.render("home.ejs", { user });
 });
 
+app.get('/calender', checkAuthenticated, (req, res) => {
+  const user = {
+    name: req.user.username,
+    role: req.user.role_name,
+  };
+  res.render("calender.ejs", { user });
+});
+
+app.get('/dashboard', checkAuthenticated, (req, res) => {
+  const user = {
+    name: req.user.username,
+    role: req.user.role_name,
+  };
+  res.render("dashboard.ejs", { user });
+});
+
+app.get('/data-analytics', checkAuthenticated, (req, res) =>{
+  const user = {
+    name: req.user.username,
+    role: req.user.role_name,
+  };
+  res.render('data-analytics.ejs', { user });
+});
+
+app.get('/assign_task', (req, res) =>{
+  res.render('assign_task.ejs');
+}); 
+
+// Fetch unassigned tasks
+app.get('/tasks/unassigned', async (req, res) => {
+  try {
+      const [tasks] = await db.query("SELECT * FROM maintenance_tasks WHERE assign_status = 'unassigned'");
+      res.json(tasks);
+  } catch (error) {
+      res.status(500).send('Error fetching tasks');
+  }
+});
+
+// Fetch available technicians
+app.get('/technicians/available', async (req, res) => {
+  try {
+      const [technicians] = await db.query("SELECT * FROM technicians WHERE availability = 'available'");
+      res.json(technicians);
+  } catch (error) {
+      res.status(500).send('Error fetching technicians');
+  }
+});
 // Route to render the forgot password form
 app.get('/forgot-password', (req, res) => {
   res.render('forgot-password.ejs', { messages: req.flash() });
