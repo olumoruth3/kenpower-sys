@@ -56,27 +56,32 @@
                     </div>
                     <div class="modal-body">
                         <form id="assignTaskForm">
-                            <div class="mb-3">
-                                <label for="employeeName" class="form-label">Task Assign To</label>
+                            <div class="mb-3 technician-dropdown">
+                                <label for="taskName" class="form-label">Task Name</label>
+                                <select class="form-select" id="task" required>
+                                    <!-- Tasks will be loaded dynamically -->
+                                </select>
+                                <!-- <input type="text" class="form-control" id="taskName" required> -->
+                            </div>
+                            <div class="mb-3 technician-dropdown">
+                                <label for="employeeName" class="form-label">Select Technician</label>
                                 <select class="form-select" id="employeeName" required>
-                                    <option value="">Select</option>
+
+                                    <!-- Technicians will be loaded dynamically -->
+                                    <!-- <option value="">Select</option>
                                     <option value="John Doe">John Doe</option>
                                     <option value="Jane Smith">Jane Smith</option>
-                                    <option value="Alice Brown">Alice Brown</option>
+                                    <option value="Alice Brown">Alice Brown</option> -->
                                 </select>
                             </div>
-                            <div class="mb-3">
+                            <!-- <div class="mb-3">
                                 <label for="companyName" class="form-label">Company Name</label>
                                 <select class="form-select" id="companyName" required>
                                     <option value="">Select</option>
                                     <option value="Company A">Company A</option>
                                     <option value="Company B">Company B</option>
                                 </select>
-                            </div>
-                            <div class="mb-3">
-                                <label for="taskName" class="form-label">Task Name</label>
-                                <input type="text" class="form-control" id="taskName" required>
-                            </div>
+                            </div> -->
                             <div class="mb-3">
                                 <label for="status" class="form-label">Status</label>
                                 <input type="text" class="form-control" id="status" value="Pending" readonly>
@@ -85,11 +90,11 @@
                                 <label for="allocationDate" class="form-label">Allocation Date</label>
                                 <input type="date" class="form-control" id="allocationDate" required>
                             </div>
-                            <div class="mb-3">
+                            <!-- <div class="mb-3">
                                 <label for="deadline" class="form-label">Deadline</label>
                                 <input type="date" class="form-control" id="deadline" required>
-                            </div>
-                            <button type="submit" class="btn btn-primary">Submit</button>
+                            </div> -->
+                            <button type="submit" class="btn btn-primary" id="assign-task-btn">Assign Task</button>
                         </form>
                     </div>
                 </div>
@@ -108,7 +113,7 @@
                                         <tr class="text-center">
                                             <th>Sr.No</th>
                                             <th>Assigned To</th>
-                                            <th>Company</th>
+                                            <th>Station</th>
                                             <th>Task Name</th>
                                             <th>Allocation Date</th>
                                             <th>Deadline</th>
@@ -162,6 +167,76 @@
             assignTaskForm.reset();
             bootstrap.Modal.getInstance(document.getElementById("assignTaskModal")).hide();
         });
+// Fetch unassigned tasks and populate the dropdown
+        async function loadTasks() {
+            try{
+                const response = await fetch('/tasks/unassigned');
+                const tasks = await response.json();
+                const taskDropdown = document.getElementById('task');
+                tasks.forEach(task =>{
+                    const option = document.createElement('option');
+                    option.value = task.task_id;
+                    option.textContent = task.title;
+                    taskDropdown.appendChild(option);
+                });
+            }
+            catch(error){
+                console.error('Error loading tasks:', error);
+            }
+        }
+
+        //Fetch available technicians and populate the dropdown
+        async function loadTechnicians(){
+            try{
+                const response = await fetch('/technicians/available');
+                const technicians = await response.json();
+                const technicianDropdown = document.getElementById('employeeName');
+                technicians.forEach(technician => {
+                    const option = document.createElement('option');
+                    option.value = technician.technician_id;
+                    option.textContent = `${technician.name} (${technician.specialty})`;
+                    technicianDropdown.appendChild(option);
+                });
+            }
+            catch (error){
+                console.error('Error loading technicians:', error);
+            }
+        }
+
+        //Assign task to technician
+        document.getElementById('assign-task-btn').addEventListener('click', async () =>{
+            const taskId = document.getElementById('task').value;
+            const technicianId = document.getElementById('employeeName').value;
+
+            if (taskId && technicianId) {
+                try{
+                    const response = await fetch('/tasks/assign', {
+                        method: 'POST',
+                        header: { 'Content-type': 'application/json'},
+                        body: JSON.stringify({ taskId, technicianId})
+                    });
+
+                    if (response.ok){
+                        alert('Task assigned successfully!');
+                        loadTasks(); //Reload tasks to exclude the assigned one
+                    }
+                    else{
+                        alert('Failed to assign task');
+                    }
+                }
+                catch (error){
+                    console.error('Error assigning task:', error);
+                }
+            }else{
+                alert('Please select both a task and a technician');
+            }
+        });
+
+        //Load data on page load
+        window.onload = () => {
+            loadTasks();
+            loadTechnicians();    
+        };
     </script>
 </body>
 </html>
