@@ -3,6 +3,8 @@ if (process.env.NODE_ENV !== "production"){
 }
 
 const express = require("express");
+const jwt = require('jsonwebtoken');
+const bodyParser = require('body-parser');
 const app = express();
 const dotenv = require("dotenv");
 const mysql = require("mysql2");
@@ -35,6 +37,7 @@ initializePassport(passport, getUserByEmail, getUserById);
 
 app.use(express.json());
 app.use(cors());
+app.use(bodyParser.json())
 dotenv.config();
 
 //Connecting to the Database 
@@ -68,7 +71,7 @@ db.connect((err) => {
 //Function to get user by email
 async function getUserByEmail(email){
   return new Promise((resolve, reject) => {
-    db.query('SELECT * FROM users WHERE email = ?', [email], (err, results) => { 
+    db.promise().query('SELECT * FROM users WHERE email = ?', [email], (err, results) => { 
       if(err){
         reject(err);
       }
@@ -78,17 +81,20 @@ async function getUserByEmail(email){
     })
   })
 }
-// Function to get user by ID
-async  function getUserById(id){
+// Function to get user by ID and user role
+async function getUserById(id) {
   return new Promise((resolve, reject) => {
-    db.query('SELECT * FROM users WHERE id = ?', [id], (err, results) => {
-      if(err){
-        reject(err);
-      }else{
-        resolve(results[0]);
-      }
-    })
-  })
+    const query = `
+      SELECT users.id, users.username, roles.role_name
+      FROM users
+      JOIN roles ON users.role_id = roles.id
+      WHERE users.id = ?
+    `;
+    db.promise().query(query, [id], (err, results) => {
+      if (err) reject(err);
+      else resolve(results[0]);
+    });
+  });
 }
 app.set('view engine', 'ejs');
 app.set('views', __dirname + '/views');
@@ -130,8 +136,8 @@ app.post(
           const hashedPassword = await bcrypt.hash(password, 10);
 
            // Assign the Customer role_id ( the ID for 'Customer' role is 4)
-          const [role] = await db.query("SELECT id FROM roles WHERE role_name = 'Customer'");
-          const roleId = role.id;
+           const [roles] = await db.promise().query("SELECT id FROM roles WHERE role_name = 'Customer'");
+           const roleId = roles[0].id;
           // Insert the new user into the database
           try {
               // Insert the new user into the database
@@ -160,14 +166,13 @@ app.post(
   }
 );
 
-
 // app.post("/login", passport.authenticate("local", {
 //   successRedirect: "/home",
 //   failureRedirect: "/login",
 //   failureFlash: true
 // }))
 
-app.post("/login", (req, res, next) => {
+app.post("/login", async (req, res, next) => {
   passport.authenticate("local", (err, user, info) => {
     if(err) return next(err);//Handles errors
     if(!user){
@@ -186,7 +191,7 @@ app.post("/login", (req, res, next) => {
       else{
         req.session.cookie.expires = false;//Session ends when browser is closed
      }
-     return res.redirect("/home"); //Redirect on successful login
+     return res.redirect("/dashboard"); //Redirect on successful login
     })
   })
   (req, res, next);
@@ -274,48 +279,6 @@ app.post('/reset-password', async (req, res) => {
   }
 });
 
-app.post('/tasks/assign', async (req,res) => {
-  const { taskId, technicianId } = req.body;
-
-  try{
-    //Update the task status and assign technician
-    await db.query("UPDATE maintenance_tasks SET assign_status = 'assigned', assigned_technician = ? WHERE task_id = ?;", [technicianId], [taskId]);
-
-    //Update technician availability
-    await db.query("UPDATE technicians SET availability = 'unavailable' WHERE technician_id = ?;", [technicianId]);
-
-    res.status(200).send('Task assigned successfully');
-  }
-  catch (error){
-    res.status(500).send('Error assigning task');
-  }
-});
-
-app.post('/calender', async(req, res) => {
-  const { taskTitle, taskDescription, taskLocation, taskPriority, taskDueDate } = req.body;
-
-  const query = `INSERT INTO maintenance_tasks
-  (title, description, location, priority, due_date, task_status, assign_status)
-  VALUES (?, ?, ?, ?, ?, ?, ?)`;
-
-  const taskStatus = 'Pending';
-  const assignStatus = 'unassigned';
-
-  db.query(
-    query,
-    [taskTitle, taskDescription, taskLocation, taskPriority, taskDueDate, taskStatus, assignStatus],
-    (err, result) => {
-      if (err) {
-        console.error('Error inserting data:', err);
-        res.status(500).send('Error inserting data');
-      } else {
-        console.log('Task added successfully:', result);
-        res.send('Task added successfully');
-      }
-    }
-  );
-});
-
 // Routes
 app.get('/login', (req, res) => {
   res.render("login.ejs", { messages: req.flash() });
@@ -370,27 +333,8 @@ app.get('/data-analytics', checkAuthenticated, (req, res) =>{
 
 app.get('/assign_task', (req, res) =>{
   res.render('assign_task.ejs');
-}); 
-
-// Fetch unassigned tasks
-app.get('/tasks/unassigned', async (req, res) => {
-  try {
-      const [tasks] = await db.query("SELECT * FROM maintenance_tasks WHERE assign_status = 'unassigned'");
-      res.json(tasks);
-  } catch (error) {
-      res.status(500).send('Error fetching tasks');
-  }
 });
 
-// Fetch available technicians
-app.get('/technicians/available', async (req, res) => {
-  try {
-      const [technicians] = await db.query("SELECT * FROM technicians WHERE availability = 'available'");
-      res.json(technicians);
-  } catch (error) {
-      res.status(500).send('Error fetching technicians');
-  }
-});
 // Route to render the forgot password form
 app.get('/forgot-password', (req, res) => {
   res.render('forgot-password.ejs', { messages: req.flash() });
@@ -412,17 +356,16 @@ app.get('/reset-password', async (req, res) => {
 
   res.render('reset-password.ejs', { token }); // Render a form to reset password
 });
-//  An Example Route accessible only to users with 'view_dashboard' permission
-app.get('/dashboard', authorizeRolePermission('view_dashboard'), (req,res) => {
-  res.render('dashboard.ejs', {user: req.user});
-});
+
+// //  An Example Route accessible only to users with 'view_dashboard' permission
+// app.get('/dashboard', authorizeRolePermission('view_dashboard'), (req,res) => {
+//   res.render('dashboard.ejs', {user: req.user});
+// });
  
 // I'll add routes here once all the files for all user roles are added. These will be for managing  access control based on permissions.
 
-
-
 // listening to the port
-const PORT = 3300;
+const PORT = 3303;
 app.listen(PORT, () => {
-  console.log('Server is running on http://localhost:${PORT}')
+  console.log(`Server is running on http://localhost:${PORT}`)
 });
