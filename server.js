@@ -68,34 +68,34 @@ db.connect((err) => {
   });
 });
 
-//Function to get user by email
-async function getUserByEmail(email){
-  return new Promise((resolve, reject) => {
-    db.promise().query('SELECT * FROM users WHERE email = ?', [email], (err, results) => { 
-      if(err){
-        reject(err);
-      }
-      else{
-        resolve(results[0]);
-      }
-    })
-  })
+// Function to get user by email
+async function getUserByEmail(email) {
+  try {
+    const [results] = await db.promise().query('SELECT * FROM users WHERE email = ?', [email]);
+    return results[0];
+  } catch (err) {
+    console.error("Error fetching user by email:", err);
+    throw err;
+  }
 }
+
 // Function to get user by ID and user role
 async function getUserById(id) {
-  return new Promise((resolve, reject) => {
+  try {
     const query = `
       SELECT users.id, users.username, roles.role_name
       FROM users
       JOIN roles ON users.role_id = roles.id
       WHERE users.id = ?
     `;
-    db.promise().query(query, [id], (err, results) => {
-      if (err) reject(err);
-      else resolve(results[0]);
-    });
-  });
+    const [results] = await db.promise().query(query, [id]);
+    return results[0];
+  } catch (err) {
+    console.error("Error fetching user by ID:", err);
+    throw err;
+  }
 }
+
 app.set('view engine', 'ejs');
 app.set('views', __dirname + '/views');
 
@@ -166,19 +166,12 @@ app.post(
   }
 );
 
-// app.post("/login", passport.authenticate("local", {
-//   successRedirect: "/home",
-//   failureRedirect: "/login",
-//   failureFlash: true
-// }))
-
 app.post("/login", async (req, res, next) => {
   passport.authenticate("local", (err, user, info) => {
     if(err) return next(err);//Handles errors
     if(!user){
       req.flash("error", info.message);
       return res.redirect("/login"); //Redirect on failure
-
     }
 
     req.logIn(user, (err) => {
@@ -191,6 +184,7 @@ app.post("/login", async (req, res, next) => {
       else{
         req.session.cookie.expires = false;//Session ends when browser is closed
      }
+     
      return res.redirect("/dashboard"); //Redirect on successful login
     })
   })
@@ -235,7 +229,7 @@ app.post('/forgot-password', async (req, res) => {
   } catch (error) {
     console.error('Error during password reset:', error);
     req.flash('error', 'An error occurred. Please try again.');
-    res.redirect('/forgot-password');
+    return res.redirect('/forgot-password');
   }
 });
 
