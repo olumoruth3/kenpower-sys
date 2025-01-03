@@ -4,7 +4,7 @@ const toggle = body.querySelector(".toggle");
 const modeSwitch = body.querySelector(".theme-toggle");
 const icon = document.getElementById('lights');
 
-const arrow = body.querySelector('.arrow');
+//const arrow = body.querySelector('.arrow');
 const subMenu = document.querySelector('.sub-menu');
 
 const notificationsBtn = document.querySelector('.notifications-trigger');
@@ -12,14 +12,33 @@ const alertsPanel = document.querySelector('.alerts-panel');
 const userBtn = document.querySelector('.user-trigger');
 const userMenu = document.querySelector('.user-menu');
 
- 
 toggle.addEventListener("click", () =>{
     sidebar.classList.toggle("close");
 });
 
-arrow.addEventListener('click', () => {
-    arrow.classList.toggle('rotate');
-    subMenu.classList.toggle('show');
+const arrow = document.querySelectorAll('.nav-link.has-submenu > a.arrow');
+
+arrow.forEach((toggle) => {
+    const subMenu = toggle.nextElementSibling;
+   // const arrowIcon = toggle.querySelector('.bx-chevron-down');
+
+    toggle.addEventListener('click', (event) => {
+        event.preventDefault();
+        subMenu.classList.toggle('show');
+
+        // Rotation behaving mad..Had to be chopped off
+       // arrowIcon.classList.toggle('rotate');
+
+        // Closing subs
+        arrow.forEach((otherToggle) => {
+            const otherSubMenu = otherToggle.nextElementSibling;
+            const otherArrowIcon = otherToggle.querySelector('.bx-chevron-down');
+            if (otherToggle !== toggle) {
+                otherSubMenu.classList.remove('show');
+                //otherArrowIcon.classList.remove('rotate');
+            }
+        });
+    });
 });
 
 sidebar.addEventListener('click', (e) => {
