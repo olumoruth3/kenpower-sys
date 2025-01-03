@@ -215,9 +215,13 @@ body.dark .sidebar header .toggle {
   transform: translateX(-10px);
 }
 
-.sidebar.close .arrow {
-  display: none;
+.sidebar.close .bx-chevron-down {
+ display: none;
 }
+
+.sidebar.close .sub-menu {
+  display: none;
+ }
 
 /* ===== Resuable CSS ===== */
 

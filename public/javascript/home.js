@@ -4,7 +4,6 @@ const toggle = body.querySelector(".toggle");
 const modeSwitch = body.querySelector(".theme-toggle");
 const icon = document.getElementById('lights');
 
-//const arrow = body.querySelector('.arrow');
 const subMenu = document.querySelector('.sub-menu');
 
 const notificationsBtn = document.querySelector('.notifications-trigger');
@@ -20,14 +19,14 @@ const arrow = document.querySelectorAll('.nav-link.has-submenu > a.arrow');
 
 arrow.forEach((toggle) => {
     const subMenu = toggle.nextElementSibling;
-   // const arrowIcon = toggle.querySelector('.bx-chevron-down');
+    const arrowIcon = toggle.querySelector('.bx-chevron-down');
 
     toggle.addEventListener('click', (event) => {
         event.preventDefault();
         subMenu.classList.toggle('show');
 
         // Rotation behaving mad..Had to be chopped off
-       // arrowIcon.classList.toggle('rotate');
+        arrowIcon.classList.toggle('rotate');
 
         // Closing subs
         arrow.forEach((otherToggle) => {
@@ -35,16 +34,28 @@ arrow.forEach((toggle) => {
             const otherArrowIcon = otherToggle.querySelector('.bx-chevron-down');
             if (otherToggle !== toggle) {
                 otherSubMenu.classList.remove('show');
-                //otherArrowIcon.classList.remove('rotate');
+                otherArrowIcon.classList.remove('rotate');
             }
         });
     });
 });
 
+document.addEventListener('click', (event) => {
+  arrow.forEach((toggle) => {
+      const subMenu = toggle.nextElementSibling;
+      const arrowIcon = toggle.querySelector('.bx-chevron-down');
+
+      if (!toggle.contains(event.target) && !subMenu.contains(event.target)) {
+          subMenu.classList.remove('show');
+          arrowIcon.classList.remove('rotate');
+      }
+  });
+});
+
 sidebar.addEventListener('click', (e) => {
     if (e.target.classList.contains('toggle')) { 
       subMenu.classList.remove('show');
-      arrow.classList.remove('rotate');
+      arrow.classList.remove('show');
     }
   });
 
